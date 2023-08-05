@@ -1,5 +1,6 @@
 import tensorcircuit as tc
 import matplotlib.pyplot as plt
+K = tc.set_backend("tensorflow")
 X = K.convert_to_tensor([[0+0j,1+0j],[1+0j,0+0j]])
 Y = K.convert_to_tensor([[0+0j,-1j],[1j,0+0j]])
 Z = K.convert_to_tensor([[1+0j,0+0j],[0+0j,-1+0j]])
