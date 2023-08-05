@@ -1,0 +1,16 @@
+import tensorcircuit as tc
+import matplotlib.pyplot as plt
+X = K.convert_to_tensor([[0+0j,1+0j],[1+0j,0+0j]])
+Y = K.convert_to_tensor([[0+0j,-1j],[1j,0+0j]])
+Z = K.convert_to_tensor([[1+0j,0+0j],[0+0j,-1+0j]])
+def exp_a(x,a):
+    exp_x = K.expm(1j*a*x)
+    return exp_x
+def exp_a_new(x,a):
+    I = K.eye(2)
+    exp_x = K.cast(K.cos(a),dtype="complex128") * K.cast(I,dtype="complex128") + 1j*K.cast(K.sin(a),dtype="complex128")*K.cast(x,dtype="complex128")
+    return exp_x
+for i in range(1,5):    
+    print(exp_a(X,i*0.1*np.pi) - exp_a_new(X,i*0.1*np.pi))
+    print(exp_a(Y,i*0.1*np.pi) - exp_a_new(Y,i*0.1*np.pi))
+    print(exp_a(Z,i*0.1*np.pi) - exp_a_new(Z,i*0.1*np.pi))
