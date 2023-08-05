@@ -1,0 +1,15 @@
+import tensorcircuit as tc
+import matplotlib.pyplot as plt
+K = tc.set_backend("tensorflow")
+def rotate(x,y,a):
+    v = K.cast(K.reshape(K.convert_to_tensor([x,y]),[-1,1]), dtype="complex64")
+    c = K.cos(a)
+    s = K.sin(a)
+    R_a = tc.array_to_tensor([[c,s],[-s,c]])
+    v_new = R_a@v
+    return v_new
+for i in range(2000):
+    v_new = rotate(1,0,0.001*i*np.pi)
+    x = v_new[0] 
+    y = v_new[1]
+    plt.plot(x,y,color="red",marker=".",markersize=1)
