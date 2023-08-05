@@ -1,17 +1,34 @@
+import tensorflow as tf
+import numpy as np
 import tensorcircuit as tc
 import matplotlib.pyplot as plt
 K = tc.set_backend("tensorflow")
-X = K.convert_to_tensor([[0+0j,1+0j],[1+0j,0+0j]])
-Y = K.convert_to_tensor([[0+0j,-1j],[1j,0+0j]])
-Z = K.convert_to_tensor([[1+0j,0+0j],[0+0j,-1+0j]])
-def exp_a(x,a):
-    exp_x = K.expm(1j*a*x)
-    return exp_x
-def exp_a_new(x,a):
-    I = K.eye(2)
-    exp_x = K.cast(K.cos(a),dtype="complex128") * K.cast(I,dtype="complex128") + 1j*K.cast(K.sin(a),dtype="complex128")*K.cast(x,dtype="complex128")
-    return exp_x
-for i in range(1,5):    
-    print(exp_a(X,i*0.1*np.pi) - exp_a_new(X,i*0.1*np.pi))
-    print(exp_a(Y,i*0.1*np.pi) - exp_a_new(Y,i*0.1*np.pi))
-    print(exp_a(Z,i*0.1*np.pi) - exp_a_new(Z,i*0.1*np.pi))
+Z = K.cast(K.convert_to_tensor([[1+0j,0+0j],[0+0j,-1+0j]]),dtype="complex128")
+list_of_matrixs = [Z,Z]
+n = 2
+c = tc.Circuit(n)
+c.h(0)
+c.cx(0, 1)
+c.rx(0, theta = 1)
+expectation_real = K.cast(c.expectation_ps(z=[0,1]),dtype="complex128")
+print(expectation_real)
+def get_expectation(maxstep,list_of_matrixs):
+    p = tc.results.counts.normalized_count(c.sample(maxstep,format="count_dict_bin",allow_state=True))
+    expectation_sum = 0
+    for i in p:
+        expectation = 1
+        for j in range(n):
+            if i[j] == "0":
+                expectation *= list_of_matrixs[j][0,0]
+            if i[j] == "1":
+                expectation *= list_of_matrixs[j][1,1]
+        expectation_sum += expectation*p[i]
+    return expectation_sum
+def loss_expectation(maxstep,list_of_matrixs):
+    loss_expectation_sum = 0
+    for _ in range(100):
+        loss_expectation_sum += (get_expectation(maxstep,list_of_matrixs)-expectation_real)**2
+    return (loss_expectation_sum/500)**0.5
+input_maxstep = np.arange(1,20)
+output = [loss_expectation(i,list_of_matrixs) for i in input_maxstep]
+plt.plot(np.log(input_maxstep),np.log(output))
