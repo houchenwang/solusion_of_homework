@@ -13,3 +13,14 @@ for i in range(2000):
     x = v_new[0] 
     y = v_new[1]
     plt.plot(x,y,color="red",marker=".",markersize=1)
+Z = K.cast(K.convert_to_tensor([[1+0j,0+0j],[0+0j,-1+0j]]),dtype="complex128")
+list_of_matrixs = [Z,Z]
+n = 2
+c = tc.Circuit(n)
+c.h(0)
+c.cx(0, 1)
+c.rx(0, theta = 1)
+p = tc.results.counts.normalized_count(c.sample(maxstep,format="count_dict_bin"))
+for i in p:
+    tel={}
+    tel[np.array(list(i),dtype=int)] = p[i in p]
